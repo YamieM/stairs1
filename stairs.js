@@ -1,76 +1,69 @@
 const makeCategoriesArray = (data) => {
-  let categoriesArray = [];
-  const stairsArray = data;
-  console.log(stairsArray);
-  stairsArray.forEach((element) => {
-    element.subCategories.forEach((element) => {
-      categoriesArray.push(element);
-    });
-  });
+  const categoriesArray = data.reduce(function (subCategory, item) {
+    return subCategory.concat(item.subCategories);
+  }, []);
   console.log(categoriesArray);
 };
-const makePublishedArray = (data) => {
-  let publishedArray = [];
-  const stairsArray = data;
-  stairsArray.forEach((element) => {
-    publishedArray.push(element.publishedAt);
-
-    if (element.parentCategory !== null) {
-      publishedArray.push(element.parentCategory.publishedAt);
-    }
-
-    element.subCategories.forEach((element) => {
-      if (element.publishedAt !== null) {
-        publishedArray.push(element.publishedAt);
-      }
-    });
-
-    element.products.forEach((element) => {
-      if (element.publishedAt !== null) {
-        publishedArray.push(element.publishedAt);
-        return publishedArray;
-      }
-    });
-  });
-
-  publishedArray.sort((a, b) => Date.parse(a) - Date.parse(b));
-  console.log(publishedArray);
+const runArray = (data) => {
+  let pubArray = [];
+  if (Array.isArray(data)) {
+    pubArray = data.reduce(function (array, element) {
+      return array.concat(element.publishedAt);
+    }, []);
+    return pubArray;
+  } else if (data !== null) {
+    return pubArray.concat(data.publishedAt);
+  }
 };
+
+function makePublishedArray(data) {
+  const publishedArray = data.reduce(function (array, item) {
+    return array.concat(
+      item.publishedAt,
+      runArray(item.products),
+      runArray(item.subCategories),
+      runArray(item.parentCategory)
+    );
+  }, []);
+  let filter = publishedArray.filter((element) => !!element);
+  filter.sort((a, b) => Date.parse(a) - Date.parse(b));
+  console.log(filter);
+}
 
 const priceSum = (data) => {
-  let priceArray = [];
-  let sumOfPrice;
-  const stairsArray = data;
-  stairsArray.forEach((element) => {
-    element.products.forEach((element) => {
-      if (element.price !== null) {
-        priceArray.push(element.price);
+  let pricesArray = [];
+  const priceArray = data.reduce(function (array, item) {
+    const price = item.products.reduce(function (array, item) {
+      if (!!item.price) {
+        return pricesArray.push(item.price);
       }
-      sumOfPrice = priceArray.reduce((sum, current) => sum + current, 0);
-    });
-  });
-  console.log(sumOfPrice);
+    }, []);
+  }, []);  
+  let priceSum=pricesArray.reduce((sum,cur)=>{
+    return sum + cur;    
+  },0)
+  console.log(priceSum);  
 };
-const makeObjectsArray = (data) => {
-  let objectsArray=[];
-  const stairsArray = data;
-  stairsArray.forEach((element) => {
-    const id = element.subCategories.id;
-    const name = element.subCategories.name;
-    let subCategoriesArray = [];
-    element.subCategories.forEach((element) => {
-      const id = element.id;
-      const name = element.name;
-      subCategoriesArray.push({id,name});
-    });
 
-    const object = {
-      name: element.name,
-      subCategories: subCategoriesArray,
-    };
-    objectsArray.push(object);
-});
-console.log(objectsArray);
+const makeObjectsArray = (data) => {
+  //   let objectsArray=[];
+  //   const stairsArray = data;
+  //   stairsArray.forEach((element) => {
+  //     const id = element.subCategories.id;
+  //     const name = element.subCategories.name;
+  //     let subCategoriesArray = [];
+  //     element.subCategories.forEach((element) => {
+  //       const id = element.id;
+  //       const name = element.name;
+  //       subCategoriesArray.push({id,name});
+  //     });
+  //     const object = {
+  //       name: element.name,
+  //       subCategories: subCategoriesArray,
+  //     };
+  //     objectsArray.push(object);
+  // });
+  // console.log(objectsArray);
 };
 
 const stairsArray = fetch(
@@ -80,6 +73,7 @@ const stairsArray = fetch(
     return response.json();
   })
   .then((data) => {
+    console.log(data);
     makeCategoriesArray(data);
     makePublishedArray(data);
     priceSum(data);
