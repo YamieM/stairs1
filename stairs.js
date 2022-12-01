@@ -1,69 +1,100 @@
-const makeCategoriesArray = (data) => {
-  const categoriesArray = data.reduce(function (subCategory, item) {
-    return subCategory.concat(item.subCategories);
-  }, []);
-  console.log(categoriesArray);
-};
-const runArray = (data) => {
-  let pubArray = [];
-  if (Array.isArray(data)) {
-    pubArray = data.reduce(function (array, element) {
-      return array.concat(element.publishedAt);
-    }, []);
-    return pubArray;
-  } else if (data !== null) {
-    return pubArray.concat(data.publishedAt);
-  }
-};
+const makeCategoriesArray = (data) =>
+  data.reduce((acc, { subCategories, parentCategory }) => {
+    if (subCategories.length) {
+      acc = [...acc, ...subCategories];
+    }
+    if (parentCategory) {
+      acc = [...acc, ...parentCategory.subCategories];
+    }
 
-function makePublishedArray(data) {
-  const publishedArray = data.reduce(function (array, item) {
-    return array.concat(
-      item.publishedAt,
-      runArray(item.products),
-      runArray(item.subCategories),
-      runArray(item.parentCategory)
-    );
+    return acc;
   }, []);
-  let filter = publishedArray.filter((element) => !!element);
-  filter.sort((a, b) => Date.parse(a) - Date.parse(b));
-  console.log(filter);
-}
 
-const priceSum = (data) => {
-  let pricesArray = [];
-  const priceArray = data.reduce(function (array, item) {
-    const price = item.products.reduce(function (array, item) {
-      if (!!item.price) {
-        return pricesArray.push(item.price);
+const publishedAtArray = (data) =>
+  data.reduce(
+    (acc, { publishedAt, subCategories, parentCategory, products }) => {
+      if (publishedAt) {
+        acc = [...acc, publishedAt];
       }
-    }, []);
-  }, []);  
-  let priceSum=pricesArray.reduce((sum,cur)=>{
-    return sum + cur;    
-  },0)
-  console.log(priceSum);  
+      if (parentCategory) {
+        acc = [...acc, parentCategory.publishedAt];
+      }
+      acc = [...acc, ...publishedAtArray(subCategories)];
+      const filteredProductsPublishedAt = products.filter(
+        (elem) => !!elem.publishedAt
+      );
+      const newArr = [...filteredProductsPublishedAt].map(
+        (elem) => elem.publishedAt
+      );
+      acc = [...acc, ...newArr];
+      return acc;
+    },
+    []
+  );
+
+const sortedDate = (data) => {
+  const dateArr = publishedAtArray(data);
+  const sorted = dateArr.sort((a, b) => Date.parse(a) - Date.parse(b));
+  return sorted;
 };
 
+const takeAllTreePrice = (data) =>
+  data.reduce((acc, { price }) => {
+    if (price) {
+      acc += price;
+    }
+    return acc;
+  }, 0);
+
+const priceSum = (data) =>
+  data.reduce((acc, item) => {
+    if (item.products.length) {
+      acc += takeAllTreePrice(item.products);
+    }
+    if (item.subCategories.length) {
+      acc += priceSum(item.subCategories);
+    }
+    return acc;
+  }, 0);
+
+const makeSubsObject = (data) => {
+  let id;
+  let name;
+ const array = data.reduce((acc, item) => {
+    id = item.id;
+    name = item.name;
+    return acc = [...acc, { id, name }];
+  }, []);
+  return array;
+};
 const makeObjectsArray = (data) => {
-  //   let objectsArray=[];
-  //   const stairsArray = data;
-  //   stairsArray.forEach((element) => {
-  //     const id = element.subCategories.id;
-  //     const name = element.subCategories.name;
-  //     let subCategoriesArray = [];
-  //     element.subCategories.forEach((element) => {
-  //       const id = element.id;
-  //       const name = element.name;
-  //       subCategoriesArray.push({id,name});
-  //     });
-  //     const object = {
-  //       name: element.name,
-  //       subCategories: subCategoriesArray,
-  //     };
-  //     objectsArray.push(object);
+  // let objectsArray = [];
+  // const stairsArray = data;
+  // stairsArray.forEach((element) => {
+  //   const id = element.subCategories.id;
+  //   const name = element.subCategories.name;
+  //   let subCategoriesArray = [];
+  //   element.subCategories.forEach((element) => {
+  //     const id = element.id;
+  //     const name = element.name;
+  //     subCategoriesArray.push({ id, name });
+  //   });
+  //
+  //   objectsArray.push(object);
   // });
-  // console.log(objectsArray);
+  // return objectsArray;
+
+  let objectArray = [];
+  const dataArr = data.reduce((acc, item) => {
+    const name = item.name;
+    const subCategories = makeSubsObject(item.subCategories);
+    const object = {
+      name,
+      subCategories,
+    };
+    return (objectArray = [...objectArray, object]);
+  }, []);
+  return objectArray;
 };
 
 const stairsArray = fetch(
@@ -74,8 +105,9 @@ const stairsArray = fetch(
   })
   .then((data) => {
     console.log(data);
-    makeCategoriesArray(data);
-    makePublishedArray(data);
-    priceSum(data);
-    makeObjectsArray(data);
+    console.log(makeCategoriesArray(data));
+    console.log(sortedDate(data));
+    console.log(priceSum(data));
+    console.log(makeObjectsArray(data));
+    // console.log((data));
   });
