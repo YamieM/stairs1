@@ -10,6 +10,18 @@ const makeCategoriesArray = (data) =>
     return acc;
   }, []);
 
+// const makeCategoriesArray = (data) => {
+//   let subsArray = [];
+//   const subCategoriesArray = data.map(({ subCategories}) => (subCategories));
+//   const parentCategorySubsArray = data.map(({parentCategory})=>{
+//     if(parentCategory){
+//      return parentCategory.subCategories;
+//     }    
+//   });
+//   const filter = parentCategorySubsArray.filter((elem)=>!!elem);
+//   return subsArray.concat(...subCategoriesArray, ...filter);
+// };
+
 const publishedAtArray = (data) =>
   data.reduce(
     (acc, { publishedAt, subCategories, parentCategory, products }) => {
@@ -58,38 +70,15 @@ const priceSum = (data) =>
   }, 0);
 
 const makeSubsObject = (data) => {
-  let id;
-  let name;
- const array = data.reduce((acc, item) => {
-    id = item.id;
-    name = item.name;
-    return acc = [...acc, { id, name }];
-  }, []);
+  const array = data.map(({ id, name }) => ({ id, name }));
   return array;
 };
 const makeObjectsArray = (data) => {
-  // let objectsArray = [];
-  // const stairsArray = data;
-  // stairsArray.forEach((element) => {
-  //   const id = element.subCategories.id;
-  //   const name = element.subCategories.name;
-  //   let subCategoriesArray = [];
-  //   element.subCategories.forEach((element) => {
-  //     const id = element.id;
-  //     const name = element.name;
-  //     subCategoriesArray.push({ id, name });
-  //   });
-  //
-  //   objectsArray.push(object);
-  // });
-  // return objectsArray;
-
   let objectArray = [];
   const dataArr = data.reduce((acc, item) => {
-    const name = item.name;
     const subCategories = makeSubsObject(item.subCategories);
     const object = {
-      name,
+      name: item.name,
       subCategories,
     };
     return (objectArray = [...objectArray, object]);
@@ -109,5 +98,4 @@ const stairsArray = fetch(
     console.log(sortedDate(data));
     console.log(priceSum(data));
     console.log(makeObjectsArray(data));
-    // console.log((data));
   });
