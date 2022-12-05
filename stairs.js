@@ -1,26 +1,26 @@
-const makeCategoriesArray = (data) =>
-  data.reduce((acc, { subCategories, parentCategory }) => {
-    if (subCategories.length) {
-      acc = [...acc, ...subCategories];
-    }
-    if (parentCategory) {
-      acc = [...acc, ...parentCategory.subCategories];
-    }
+// const makeCategoriesArray = (data) =>
+//   data.reduce((acc, { subCategories, parentCategory }) => {
+//     if (subCategories.length) {
+//       acc = [...acc, ...subCategories];
+//     }
+//     if (parentCategory) {
+//       acc = [...acc, ...parentCategory.subCategories];
+//     }
 
-    return acc;
-  }, []);
+//     return acc;
+//   }, []);
 
-// const makeCategoriesArray = (data) => {
-//   let subsArray = [];
-//   const subCategoriesArray = data.map(({ subCategories}) => (subCategories));
-//   const parentCategorySubsArray = data.map(({parentCategory})=>{
-//     if(parentCategory){
-//      return parentCategory.subCategories;
-//     }    
-//   });
-//   const filter = parentCategorySubsArray.filter((elem)=>!!elem);
-//   return subsArray.concat(...subCategoriesArray, ...filter);
-// };
+const makeCategoriesArray = (data) => {
+  let subsArray = [];
+  const subCategoriesArray = data.map(({ subCategories,parentCategory}) => (subCategories));
+  const parentCategorySubsArray = data.map(({parentCategory})=>{
+    if(parentCategory){
+     return parentCategory.subCategories;
+    }    
+  });
+  const filter = parentCategorySubsArray.filter((elem)=>!!elem);
+  return subsArray.concat(...subCategoriesArray, ...filter);
+};
 
 const publishedAtArray = (data) =>
   data.reduce(
@@ -75,15 +75,15 @@ const makeSubsObject = (data) => {
 };
 const makeObjectsArray = (data) => {
   let objectArray = [];
-  const dataArr = data.reduce((acc, item) => {
+  return data.reduce((acc, item) => {
     const subCategories = makeSubsObject(item.subCategories);
     const object = {
       name: item.name,
       subCategories,
     };
-    return (objectArray = [...objectArray, object]);
+   return objectArray = [...objectArray, object];
   }, []);
-  return objectArray;
+  // return objectArray;
 };
 
 const stairsArray = fetch(
