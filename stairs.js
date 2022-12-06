@@ -1,87 +1,116 @@
-const makeCategoriesArray = (data) => {
-  let categoriesArray = [];
-  const stairsArray = data;
-  console.log(stairsArray);
-  stairsArray.forEach((element) => {
-    element.subCategories.forEach((element) => {
-      categoriesArray.push(element);
-    });
-  });
-  console.log(categoriesArray);
+// const makeCategoriesArray = (data) =>
+//   data.reduce((acc, { subCategories, parentCategory }) => {
+//     if (subCategories.length) {
+//       acc = [...acc, ...subCategories];
+//     }
+//     if (parentCategory) {
+//       acc = [...acc, ...parentCategory.subCategories];
+//     }
+
+//     return acc;
+//   }, []);
+
+// const makeCategoriesArray = (data) => {
+//   let subsArray = [];
+//   const subCategoriesArray = data.map(
+//     ({ subCategories, parentCategory }) => subCategories
+//   );
+//   const parentCategorySubsArray = data.map(({ parentCategory }) => {
+//     if (parentCategory) {
+//       return parentCategory.subCategories;
+//     }
+//   });
+//   const filter = parentCategorySubsArray.filter((elem) => !!elem);
+//   return subsArray.concat(...subCategoriesArray, ...filter);
+// };
+
+// const publishedAtArray = (data) =>
+//   data.reduce(
+//     (acc, { publishedAt, subCategories, parentCategory, products }) => {
+//       if (publishedAt) {
+//         acc = [...acc, publishedAt];
+//       }
+//       if (parentCategory) {
+//         acc = [...acc, parentCategory.publishedAt];
+//       }
+//       acc = [...acc, ...publishedAtArray(subCategories)];
+//       const filteredProductsPublishedAt = products.filter(
+//         (elem) => !!elem.publishedAt
+//       );
+//       const newArr = [...filteredProductsPublishedAt].map(
+//         (elem) => elem.publishedAt
+//       );
+//       acc = [...acc, ...newArr];
+//       return acc;
+//     },
+//     []
+//   );
+
+// const sortedDate = (data) => {
+//   const dateArr = publishedAtArray(data);
+//   const sorted = dateArr.sort((a, b) => Date.parse(a) - Date.parse(b));
+//   return sorted;
+// };
+
+// const takeAllTreePrice = (data) =>
+//   data.reduce((acc, { price }) => {
+//     if (price) {
+//       acc += price;
+//     }
+//     return acc;
+//   }, 0);
+
+// const priceSum = (data) =>
+//   data.reduce((acc, item) => {
+//     if (item.products.length) {
+//       acc += takeAllTreePrice(item.products);
+//     }
+//     if (item.subCategories.length) {
+//       acc += priceSum(item.subCategories);
+//     }
+//     return acc;
+//   }, 0);
+
+// const makeSubsObject = (data) => {
+//   const array = data.map(({ id, name }) => ({ id, name }));
+//   return array;
+// };
+// const makeObjectsArray = (data) => {
+//   let objectArray = [];
+//   return data.reduce((acc, item) => {
+//     const subCategories = makeSubsObject(item.subCategories);
+//     const object = {
+//       name: item.name,
+//       subCategories,
+//     };
+//     return (objectArray = [...objectArray, object]);
+//   }, []);
+// };
+
+// const stairsArray = fetch(
+//   "https://run.mocky.io/v3/c35ef044-e20d-4119-bfcc-421802d71a1e"
+// )
+//   .then((response) => {
+//     return response.json();
+//   })
+//   .then((data) => {
+//     console.log(data);
+//     console.log(makeCategoriesArray(data));
+//     console.log(sortedDate(data));
+//     console.log(priceSum(data));
+//     console.log(makeObjectsArray(data));
+//   });
+
+const timer = (inc) =>
+  new Promise((resolve, reject) => setTimeout(() => resolve(), 1000*inc));
+
+const logToStep = async () => {
+  let inc = 0;
+  while (inc < 10) {
+    await timer(inc);
+    inc += 1;
+    console.log(new Date())
+    console.log(inc);    
+  }
 };
-const makePublishedArray = (data) => {
-  let publishedArray = [];
-  const stairsArray = data;
-  stairsArray.forEach((element) => {
-    publishedArray.push(element.publishedAt);
-
-    if (element.parentCategory !== null) {
-      publishedArray.push(element.parentCategory.publishedAt);
-    }
-
-    element.subCategories.forEach((element) => {
-      if (element.publishedAt !== null) {
-        publishedArray.push(element.publishedAt);
-      }
-    });
-
-    element.products.forEach((element) => {
-      if (element.publishedAt !== null) {
-        publishedArray.push(element.publishedAt);
-        return publishedArray;
-      }
-    });
-  });
-
-  publishedArray.sort((a, b) => Date.parse(a) - Date.parse(b));
-  console.log(publishedArray);
-};
-
-const priceSum = (data) => {
-  let priceArray = [];
-  let sumOfPrice;
-  const stairsArray = data;
-  stairsArray.forEach((element) => {
-    element.products.forEach((element) => {
-      if (element.price !== null) {
-        priceArray.push(element.price);
-      }
-      sumOfPrice = priceArray.reduce((sum, current) => sum + current, 0);
-    });
-  });
-  console.log(sumOfPrice);
-};
-const makeObjectsArray = (data) => {
-  let objectsArray=[];
-  const stairsArray = data;
-  stairsArray.forEach((element) => {
-    const id = element.subCategories.id;
-    const name = element.subCategories.name;
-    let subCategoriesArray = [];
-    element.subCategories.forEach((element) => {
-      const id = element.id;
-      const name = element.name;
-      subCategoriesArray.push({id,name});
-    });
-
-    const object = {
-      name: element.name,
-      subCategories: subCategoriesArray,
-    };
-    objectsArray.push(object);
-});
-console.log(objectsArray);
-};
-
-const stairsArray = fetch(
-  "https://run.mocky.io/v3/c35ef044-e20d-4119-bfcc-421802d71a1e"
-)
-  .then((response) => {
-    return response.json();
-  })
-  .then((data) => {
-    makeCategoriesArray(data);
-    makePublishedArray(data);
-    priceSum(data);
-    makeObjectsArray(data);
-  });
+logToStep();
